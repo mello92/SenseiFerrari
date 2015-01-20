@@ -196,7 +196,7 @@ config CPU_FREQ_GOV_ELEMENTALX
 	  'elementalx' - This driver adds a dynamic cpufreq policy governor.
 
 	  To compile this driver as a module, choose M here: the
-	  module will be called cpufreq_elementalx.
+	  module will be called cpufreq_elementalx.1
 
 	  For details, take a look at linux/Documentation/cpu-freq.
 
