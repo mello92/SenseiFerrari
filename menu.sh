@@ -32,7 +32,7 @@ export SUBARCH=arm64
 export KBUILD_BUILD_USER="Haikal .Izzuddin"
 export KBUILD_BUILD_HOST="HeywhiteXDA"
 STRIP="/media/haikal/DevelopmentCM/toolchains/aarch64-linux-gnu-4.9/bin/aarch64-strip"
-MODULES_DIR=$KERNEL_DIR/../SenseiOutput/Common
+MODULES_DIR=/media/haikal/DevelopmentCM/SenseiKernel/SenseiOutput
  
 # ----------------------------------
 # Step #2: User defined function
@@ -55,8 +55,8 @@ one(){
 	fi
 	$DTBTOOL -2 -o $KERNEL_DIR/arch/arm64/boot/dt.img -s 2048 -p $KERNEL_DIR/scripts/dtc/ $KERNEL_DIR/arch/arm/boot/dts/
 
-	rm $MODULES_DIR/../Mi4i/tools/Image
-	rm $MODULES_DIR/../Mi4i/tools/dt.img
+	rm $MODULES_DIR/Mi4i/tools/Image
+	rm $MODULES_DIR/Mi4i/tools/dt.img
 	cp $KERNEL_DIR/arch/arm64/boot/Image  $MODULES_DIR/../Mi4i/tools
 	cp $KERNEL_DIR/arch/arm64/boot/dt.img  $MODULES_DIR/../Mi4i/tools
 	cd $MODULES_DIR/../Mi4i/
