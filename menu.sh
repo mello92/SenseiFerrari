@@ -20,9 +20,9 @@ red='\033[0;31m'
 nocol='\033[0m'
 
 # Device varibles (Modify this)
-device='Xiaomi Mi4i'
-sensei_base_version='Sensei'
-version='1.2.1'
+device='Xiaomi Mi4i (FERRARI)' # Device Id
+sensei_base_version='Sensei' # Kernel Id
+version='1.2.1' # Kernel Version
 
 # Modify the following variable if you want to build
 export CROSS_COMPILE="/media/haikal/DevelopmentCM/toolchains/aarch64-linux-gnu-4.9/bin/aarch64-"
@@ -32,7 +32,7 @@ export SUBARCH=arm64
 export KBUILD_BUILD_USER="Haikal .Izzuddin"
 export KBUILD_BUILD_HOST="HeywhiteXDA"
 STRIP="/media/haikal/DevelopmentCM/toolchains/aarch64-linux-gnu-4.9/bin/aarch64-strip"
-MODULES_DIR=/media/haikal/DevelopmentCM/SenseiKernel/SenseiOutput
+MODULES_DIR=$KERNEL_DIR/../SenseiOutput
  
 # ----------------------------------
 # Step #2: User defined function
@@ -57,16 +57,16 @@ one(){
 
 	rm $MODULES_DIR/Mi4i/tools/Image
 	rm $MODULES_DIR/Mi4i/tools/dt.img
-	cp $KERNEL_DIR/arch/arm64/boot/Image  $MODULES_DIR/../Mi4i/tools
-	cp $KERNEL_DIR/arch/arm64/boot/dt.img  $MODULES_DIR/../Mi4i/tools
-	cd $MODULES_DIR/../Mi4i/
+	cp $KERNEL_DIR/arch/arm64/boot/Image  $MODULES_DIR/Mi4i/tools
+	cp $KERNEL_DIR/arch/arm64/boot/dt.img  $MODULES_DIR/Mi4i/tools
+	cd $MODULES_DIR/Mi4i/
 	zipfile="Sensei-$version-$(date +"%Y-%m-%d").zip"
 	echo $zipfile
 	zip -r $zipfile tools META-INF -x *kernel/.gitignore*
 	BUILD_END=$(date +"%s")
 	DIFF=$(($BUILD_END - $BUILD_START))
 	echo -e "$yellow Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds.$nocol"
-	echo "Enjoy Sensei for Ferrari"
+	echo "Enjoy Sensei for "$device
 
         pause
 }
@@ -85,6 +85,8 @@ three(){
 	echo "Sensei Kernel"
 	echo "Device : "$device
 	echo "Version : "$sensei_base_version-$version
+	echo "";
+	echo "Modules Dir : "$MODULES_DIR
 	pause
 }
  
