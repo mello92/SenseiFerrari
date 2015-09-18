@@ -547,7 +547,7 @@ static int __init thunderplug_init(void)
 
 		lcd_worker.notifier_call = lcd_notifier_callback;
 
-       // lcd_register_client(&lcd_worker);
+        lcd_register_client(&lcd_worker);
 
 		pr_info("%s : registering input boost", THUNDERPLUG);
 		ret = input_register_handler(&tplug_input_handler);

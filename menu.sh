@@ -60,9 +60,9 @@ one(){
 	cp $KERNEL_DIR/arch/arm64/boot/Image  $MODULES_DIR/Mi4i/tools
 	cp $KERNEL_DIR/arch/arm64/boot/dt.img  $MODULES_DIR/Mi4i/tools
 	cd $MODULES_DIR/Mi4i/
-	zipfile="Sensei-$version-$(date +"%Y-%m-%d").zip"
+	zipfile="Sensei-$version-$(date +"%Y-%m-%d(%I.%M%p)").zip"
 	echo $zipfile
-	zip -r $zipfile tools META-INF -x *kernel/.gitignore*
+	zip -r $zipfile tools META-INF etc -x *kernel/.gitignore*
 	BUILD_END=$(date +"%s")
 	DIFF=$(($BUILD_END - $BUILD_START))
 	echo -e "$yellow Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds.$nocol"
