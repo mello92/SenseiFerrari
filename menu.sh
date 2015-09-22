@@ -29,8 +29,8 @@ export CROSS_COMPILE="/media/haikal/DevelopmentCM/toolchains/aarch64-linux-gnu-4
 export USE_CCACHE=1
 export ARCH=arm64
 export SUBARCH=arm64
-export KBUILD_BUILD_USER="Haikal .Izzuddin"
-export KBUILD_BUILD_HOST="HeywhiteXDA"
+export KBUILD_BUILD_USER="Haikal Izzuddin"
+export KBUILD_BUILD_HOST="haikalizz"
 STRIP="/media/haikal/DevelopmentCM/toolchains/aarch64-linux-gnu-4.9/bin/aarch64-strip"
 MODULES_DIR=$KERNEL_DIR/../SenseiOutput
  
@@ -62,7 +62,7 @@ one(){
 	cd $MODULES_DIR/Mi4i/
 	zipfile="Sensei-$version-$(date +"%Y-%m-%d(%I.%M%p)").zip"
 	echo $zipfile
-	zip -r $zipfile tools META-INF etc -x *kernel/.gitignore*
+	zip -r $zipfile tools META-INF system -x *kernel/.gitignore*
 	BUILD_END=$(date +"%s")
 	DIFF=$(($BUILD_END - $BUILD_START))
 	echo -e "$yellow Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds.$nocol"
@@ -90,6 +90,13 @@ three(){
 	pause
 }
  
+# Kconfig
+four(){
+	make ferrari_debug_defconfig;
+	make menuconfig;
+	pause
+}
+
 show_menus() {
 	clear
 	echo "~~~~~~~~~~~~~~~~~~~~~"	
@@ -101,17 +108,19 @@ show_menus() {
 	echo "		? - Clear the previous build"
 	echo "3. Kernel Info"
 	echo "		? - Returns kernel info"
-	echo "4. Exit"
+	echo "4. Defconfig"
+	echo "5. Exit"
 }
 
 read_options(){
 	local choice
-	read -p "Enter choice [ 1 - 4] " choice
+	read -p "Enter choice [ 1 - 5] " choice
 	case $choice in
 		1) one ;;
 		2) two ;;
 		3) three;;
-		4) exit 0;;
+		4)four;;
+		5) exit 0;;
 		*) echo -e "${RED}Error...${STD}" && sleep 2
 	esac
 }

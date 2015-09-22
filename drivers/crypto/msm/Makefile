@@ -7,7 +7,7 @@ ifeq ($(CONFIG_CRYPTO_DEV_QCE50), y)
 else
 	ifeq ($(CONFIG_CRYPTO_DEV_QCE40), y)
 	else
-		obj-$(CONFIG_CRYPTO_DEV_QCE) += qce.o
+		obj-$(CONFIG_CRYPTO_DEV_QCE) += qce50.o
 	endif
 endif
 ifdef CONFIG_COMPAT
