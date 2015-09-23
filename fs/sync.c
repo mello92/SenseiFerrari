@@ -15,7 +15,11 @@
 #include <linux/pagemap.h>
 #include <linux/quotaops.h>
 #include <linux/backing-dev.h>
+#include <linux/module.h>
 #include "internal.h"
+
+bool fsync_enabled = false;
+module_param(fsync_enabled, bool, 0755);
 
 #ifdef CONFIG_DYNAMIC_FSYNC
 extern bool power_suspend_active;
@@ -173,6 +177,9 @@ SYSCALL_DEFINE1(syncfs, int, fd)
 	struct super_block *sb;
 	int ret;
 
+	if (!fsync_enabled)
+		return 0;
+
 	if (!f.file)
 		return -EBADF;
 	sb = f.file->f_dentry->d_sb;
@@ -204,6 +211,9 @@ int vfs_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 	else {
 #endif
 
+	if (!fsync_enabled)
+		return 0;
+
 	if (!file->f_op || !file->f_op->fsync)
 		return -EINVAL;
 	return file->f_op->fsync(file, start, end, datasync);
@@ -223,6 +233,9 @@ EXPORT_SYMBOL(vfs_fsync_range);
  */
 int vfs_fsync(struct file *file, int datasync)
 {
+	if (!fsync_enabled)
+		return 0;
+
 	return vfs_fsync_range(file, 0, LLONG_MAX, datasync);
 }
 EXPORT_SYMBOL(vfs_fsync);
@@ -231,6 +244,9 @@ static int do_fsync(unsigned int fd, int datasync)
 {
 	struct fd f = fdget(fd);
 	int ret = -EBADF;
+
+	if (!fsync_enabled)
+		return 0;
 
 	if (f.file) {
 		ret = vfs_fsync(f.file, datasync);
@@ -264,6 +280,9 @@ SYSCALL_DEFINE1(fdatasync, unsigned int, fd)
  */
 int generic_write_sync(struct file *file, loff_t pos, loff_t count)
 {
+	if (!fsync_enabled)
+		return 0;
+
 	if (!(file->f_flags & O_DSYNC) && !IS_SYNC(file->f_mapping->host))
 		return 0;
 	return vfs_fsync_range(file, pos, pos + count - 1,
@@ -331,6 +350,9 @@ SYSCALL_DEFINE4(sync_file_range, int, fd, loff_t, offset, loff_t, nbytes,
 	struct address_space *mapping;
 	loff_t endbyte;			/* inclusive */
 	umode_t i_mode;
+
+	if (!fsync_enabled)
+		return 0;
 
 	ret = -EINVAL;
 	if (flags & ~VALID_FLAGS)

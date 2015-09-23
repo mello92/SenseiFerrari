@@ -68,7 +68,7 @@ one(){
 	echo -e "$yellow Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds.$nocol"
 	echo "Enjoy Sensei for "$device
 
-        pause
+        exit 0
 }
  
 # Clean Repo

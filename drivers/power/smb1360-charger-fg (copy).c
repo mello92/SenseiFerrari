@@ -30,9 +30,6 @@
 #include <linux/bitops.h>
 #include <linux/qpnp/qpnp-adc.h>
 #include <asm/bootinfo.h>
-#ifdef CONFIG_THUNDERCHARGE_CONTROL
-#include "thundercharge_control.h"
-#endif
 
 #define _SMB1360_MASK(BITS, POS) \
 	((unsigned char)(((1 << (BITS)) - 1) << (POS)))
@@ -1473,19 +1470,8 @@ static void smb1360_external_power_changed(struct power_supply *psy)
 	if (rc < 0)
 		dev_err(chip->dev,
 			"could not read USB current_max property, rc=%d\n", rc);
-	else    {
-#ifdef CONFIG_THUNDERCHARGE_CONTROL
-        	if(!((prop.intval / 1000) ==0))
-        	{
-        		pr_info("Using custom current of %d",custom_current);
-			current_limit = custom_current;
-	      	}
-        	else
-        		current_limit = 0;
-#else
-		        current_limit = prop.intval / 1000;
-#endif
-	}
+	else
+		current_limit = prop.intval / 1000;
 
 	pr_info("current_limit = %d\n", current_limit);
 
