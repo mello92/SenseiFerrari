@@ -1340,7 +1340,7 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 		goto bad_fork_cleanup_policy;
 	retval = audit_alloc(p);
 	if (retval)
-		goto bad_fork_cleanup_perf;
+		goto bad_fork_cleanup_policy;
 	/* copy all the process information */
 	retval = copy_semundo(clone_flags, p);
 	if (retval)
@@ -1469,6 +1469,14 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 		goto bad_fork_free_pid;
 	}
 
+	if (clone_flags & CLONE_THREAD) {
+		current->signal->nr_threads++;
+		atomic_inc(&current->signal->live);
+		atomic_inc(&current->signal->sigcnt);
+		p->group_leader = current->group_leader;
+		list_add_tail_rcu(&p->thread_group, &p->group_leader->thread_group);
+	}
+
 	if (likely(p->pid)) {
 		ptrace_init_task(p, (clone_flags & CLONE_PTRACE) || trace);
 
@@ -1486,12 +1494,8 @@ static struct task_struct *copy_process(unsigned long clone_flags,
 			list_add_tail_rcu(&p->tasks, &init_task.tasks);
 			__this_cpu_inc(process_counts);
 		} else {
-			current->signal->nr_threads++;
-			atomic_inc(&current->signal->live);
-			atomic_inc(&current->signal->sigcnt);
-			p->group_leader = current->group_leader;
-			list_add_tail_rcu(&p->thread_group,
-					  &p->group_leader->thread_group);
+			list_add_tail_rcu(&p->thread_node,
+					  &p->signal->thread_head);
 		}
 		attach_pid(p, PIDTYPE_PID, pid);
 		nr_threads++;
@@ -1536,9 +1540,8 @@ bad_fork_cleanup_semundo:
 	exit_sem(p);
 bad_fork_cleanup_audit:
 	audit_free(p);
-bad_fork_cleanup_perf:
-	perf_event_free_task(p);
 bad_fork_cleanup_policy:
+	perf_event_free_task(p);
 #ifdef CONFIG_NUMA
 	mpol_put(p->mempolicy);
 bad_fork_cleanup_cgroup:
@@ -1779,15 +1782,8 @@ static int check_unshare_flags(unsigned long unshare_flags)
 	 * needs to unshare vm.
 	 */
 	if (unshare_flags & (CLONE_THREAD | CLONE_SIGHAND | CLONE_VM)) {
-		if (!thread_group_empty(current))
-			return -EINVAL;
-	}
-	if (unshare_flags & (CLONE_SIGHAND | CLONE_VM)) {
-		if(atomic_read(&current->sighand->count) > 1)
-			return -EINVAL;
-	}
-	if (unshare_flags & CLONE_VM) {
-		if (!current_is_single_threaded())
+		/* FIXME: get_task_mm() increments ->mm_users */
+		if (atomic_read(&current->mm->mm_users) > 1)
 			return -EINVAL;
 	}
 
@@ -1861,15 +1857,15 @@ SYSCALL_DEFINE1(unshare, unsigned long, unshare_flags)
 	if (unshare_flags & CLONE_NEWPID)
 		unshare_flags |= CLONE_THREAD;
 	/*
+	 * If unsharing a thread from a thread group, must also unshare vm.
+	 */
+	if (unshare_flags & CLONE_THREAD)
+		unshare_flags |= CLONE_VM;
+	/*
 	 * If unsharing vm, must also unshare signal handlers.
 	 */
 	if (unshare_flags & CLONE_VM)
 		unshare_flags |= CLONE_SIGHAND;
-	/*
-	* If unsharing a signal handlers, must also unshare the signal queues.
-	*/
-	if (unshare_flags & CLONE_SIGHAND)
-		unshare_flags |= ClONE_THREAD;
 	/*
 	 * If unsharing namespace, must also unshare filesystem information.
 	 */
