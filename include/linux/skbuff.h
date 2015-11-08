@@ -2363,9 +2363,12 @@ static inline void skb_postpull_rcsum(struct sk_buff *skb,
 {
 	if (skb->ip_summed == CHECKSUM_COMPLETE)
 		skb->csum = csum_sub(skb->csum, csum_partial(start, len, 0));
+<<<<<<< HEAD
 	else if (skb->ip_summed == CHECKSUM_PARTIAL &&
 		 skb_checksum_start_offset(skb) < 0)
 		skb->ip_summed = CHECKSUM_NONE;
+=======
+>>>>>>> parent of eeb60c9... skbuff: Fix skb checksum flag on skb pull
 }
 
 unsigned char *skb_pull_rcsum(struct sk_buff *skb, unsigned int len);
